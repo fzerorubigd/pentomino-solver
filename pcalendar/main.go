@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fzerorubigd/pentomino-solver/psolver"
+	psolver "github.com/fzerorubigd/pentomino-solver"
 )
 
 func main() {
