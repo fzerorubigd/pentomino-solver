@@ -1,10 +1,30 @@
-package main
+package psolver
 
 import (
 	"errors"
+	"fmt"
 )
 
-var ErrInvalidState = errors.New("invalid state")
+var (
+	ErrInvalidState = errors.New("invalid state")
+)
+
+type NamedPiece string
+
+const (
+	PieceF NamedPiece = "F"
+	PieceI NamedPiece = "I"
+	PieceL NamedPiece = "L"
+	PieceN NamedPiece = "N"
+	PieceP NamedPiece = "P"
+	PieceT NamedPiece = "T"
+	PieceU NamedPiece = "U"
+	PieceV NamedPiece = "V"
+	PieceW NamedPiece = "W"
+	PieceX NamedPiece = "X"
+	PieceY NamedPiece = "Y"
+	PieceZ NamedPiece = "Z"
+)
 
 type piecesI struct {
 }
@@ -870,5 +890,53 @@ func (piecesZ) Position(ref Point, state int) ([5]Point, error) {
 	default:
 		// Assuming ErrInvalidState is defined elsewhere
 		return [5]Point{}, ErrInvalidState
+	}
+}
+
+func NewNamePiece(p NamedPiece) (Piece, error) {
+	switch p {
+	case PieceF:
+		return piecesF{}, nil
+	case PieceI:
+		return piecesI{}, nil
+	case PieceL:
+		return piecesL{}, nil
+	case PieceN:
+		return piecesN{}, nil
+	case PieceP:
+		return piecesP{}, nil
+	case PieceT:
+		return piecesT{}, nil
+	case PieceU:
+		return piecesU{}, nil
+	case PieceV:
+		return piecesV{}, nil
+	case PieceW:
+		return piecesW{}, nil
+	case PieceX:
+		return piecesX{}, nil
+	case PieceY:
+		return piecesY{}, nil
+	case PieceZ:
+		return piecesZ{}, nil
+	default:
+		return nil, fmt.Errorf("%q is invalid name", p)
+	}
+}
+
+func New12() []Piece {
+	return []Piece{
+		piecesI{},
+		piecesL{},
+		piecesP{},
+		piecesT{},
+		piecesU{},
+		piecesV{},
+		piecesW{},
+		piecesX{},
+		piecesY{},
+		piecesZ{},
+		piecesF{},
+		piecesN{},
 	}
 }
