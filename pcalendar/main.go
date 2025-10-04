@@ -23,8 +23,13 @@ func main() {
 	resp := make(chan *psolver.Matrix, 10)
 	psolver.Solve(&cal.Matrix, pie, resp)
 
+	mm := map[string]struct{}{}
 	i := 1
 	for r := range resp {
+		if _, ok := mm[r.Hash()]; ok {
+			continue
+		}
+		mm[r.Hash()] = struct{}{}
 		fmt.Println(i, "===>")
 		fmt.Println(r)
 		if count > 0 && i == count {

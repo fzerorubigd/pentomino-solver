@@ -1,6 +1,7 @@
 package psolver
 
 import (
+	"crypto/sha1"
 	"fmt"
 	"sync"
 )
@@ -9,7 +10,8 @@ type Matrix struct {
 	Width  int
 	Height int
 
-	data []byte
+	data   []byte
+	pieces map[byte]int
 }
 
 type Point struct {
@@ -27,6 +29,7 @@ func NewMatrix(w, h int) *Matrix {
 		Width:  w,
 		Height: h,
 		data:   make([]byte, w*h),
+		pieces: make(map[byte]int, 12),
 	}
 
 	return &m
@@ -46,6 +49,11 @@ func (m *Matrix) String() string {
 	}
 
 	return res
+}
+
+func (m *Matrix) Hash() string {
+	hash := sha1.New()
+	return fmt.Sprintf("%x", hash.Sum(m.data))
 }
 
 func (m *Matrix) isFull() bool {
@@ -94,6 +102,7 @@ func (m *Matrix) place(p Piece, pos Point, state int) error {
 	if err != nil {
 		return nil
 	}
+	m.pieces[p.Name()] = state
 
 	for _, pt := range points {
 		m.data[pt.Y*m.Width+pt.X] = p.Name()
@@ -116,8 +125,15 @@ func (m *Matrix) remove(p Piece) {
 func (m *Matrix) duplicate() *Matrix {
 	n := NewMatrix(m.Width, m.Height)
 	copy(n.data, m.data)
+	for i := range m.pieces {
+		n.pieces[i] = m.pieces[i]
+	}
 
 	return n
+}
+
+func (m *Matrix) Pieces() map[byte]int {
+	return m.pieces
 }
 
 func Minus(p []Piece, idx int) []Piece {

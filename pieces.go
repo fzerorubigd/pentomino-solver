@@ -521,7 +521,7 @@ func (piecesP) Position(ref Point, state int) ([5]Point, error) {
 		// 270-degrees ( P P P /
 		// 				 . P P) - 3x2 box
 		return [5]Point{
-			{x + 1, y}, {x + 2, y}, {x + 2, y},
+			{x, y}, {x + 1, y}, {x + 2, y},
 			{x + 1, y + 1}, {x + 2, y + 1},
 		}, nil
 
