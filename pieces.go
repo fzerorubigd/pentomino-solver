@@ -179,7 +179,7 @@ func (piecesL) Position(ref Point, state int) ([5]Point, error) {
 		// 			  L L L L) - 4x2 box
 		return [5]Point{
 			{x, y},
-			{x - 3, y + 1}, {x + 2, y + 1}, {x + 1, y + 1}, {x, y + 1},
+			{x - 3, y + 1}, {x - 2, y + 1}, {x - 1, y + 1}, {x, y + 1},
 		}, nil
 
 	default:
