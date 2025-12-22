@@ -14,6 +14,10 @@ type Matrix struct {
 	pieces map[byte]int
 }
 
+func (m *Matrix) At(x, y int) byte {
+	return m.data[y*m.Width+x]
+}
+
 type Point struct {
 	X, Y int
 }
