@@ -1,0 +1,72 @@
+name: Daily Puzzle
+
+on:
+  schedule:
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+jobs:
+  solve-and-send:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Go
+        uses: actions/setup-go@v6
+        with:
+          go-version: '1.25'
+
+      - name: Build
+        run: go build -v ./pcalendar/main.go
+
+      - name: Create output directory jalali
+        run: mkdir jalali
+
+      - name: Create output directory gregorian
+        run: mkdir gregorian
+
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install -y librsvg2-bin jcal
+
+      - name: Generate Solutions
+        run: ./main -today -svg -count 5 -output-dir gregorian
+
+      - name: Generate Solutions
+        run: ./main -today -svg -jalali -count 5 -output-dir jalali
+
+      - name: Convert to PNG
+        run: |
+          for file in gregorian/*.svg; do
+            rsvg-convert "$file" -o "${file%.svg}.png"
+          done
+
+      - name: Convert to PNG
+        run: |
+          for file in jalali/*.svg; do
+            rsvg-convert "$file" -o "${file%.svg}.png"
+          done
+
+      - name: Get Date
+        id: date
+        run: |
+          echo "today=$(date +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+          echo "jtoday=$(jdate +'%Y-%m-%d')" >> $GITHUB_OUTPUT
+
+      - name: Send Gregorian to Telegram
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            Daily Pentomino Puzzle Solutions (Gregorian) (${{ steps.date.outputs.today }})
+          photo: gregorian/1.png,gregorian/2.png,gregorian/3.png,gregorian/4.png,gregorian/5.png
+
+      - name: Send Jalali to Telegram
+        uses: appleboy/telegram-action@master
+        with:
+          to: ${{ secrets.TELEGRAM_TO }}
+          token: ${{ secrets.TELEGRAM_TOKEN }}
+          message: |
+            Daily Pentomino Puzzle Solutions (Jalali) (${{ steps.date.outputs.jtoday }})
+          photo: jalali/1.png,jalali/2.png,jalali/3.png,jalali/4.png,jalali/5.png

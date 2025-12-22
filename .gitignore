@@ -19,3 +19,4 @@ go.work
 
 # Bin directory
 bin/
+.svg

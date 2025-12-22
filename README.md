@@ -28,6 +28,8 @@ To get the help message:
 
 ```
 Usage of ./bin/pentomino:
+  -color
+    	Use color output (default true)
   -count int
     	The count of the solution to show before exit, -1 to show all (default -1)
   -height int
@@ -38,10 +40,10 @@ Usage of ./bin/pentomino:
 
 **Example:**
 
-To solve a 6x10 puzzle and see the first solution:
+To solve a 6x10 puzzle and see the first solution in color:
 
 ```bash
-./bin/pentomino -width 10 -height 6 -count 1
+./bin/pentomino -width 10 -height 6 -count 1 -color
 ```
 
 ### 2. `pcalendar`
@@ -62,12 +64,22 @@ To get the help message:
 
 ```
 Usage of ./bin/pcalendar:
+  -color
+    	Use color output (default true)
   -count int
     	The count of the solution to show before exit, -1 to show all (default -1)
   -day int
     	The day of the month, 1 to 31 (default 1)
+  -jalali
+    	Use jalali calendar
   -month int
     	The month, 1 to 12 (default 1)
+  -output-dir string
+    	Output directory for SVG files
+  -svg
+    	Output SVG files (1.svg, 2.svg, ...)
+  -today
+    	Output today's calendar, ignore all other date related flags
   -weekday int
     	The weekday, 1 for the first day, 7 for 7th day. (Shanbe is first for Persian, Monday for Gregorian) (default 1)
   -year int
@@ -76,15 +88,39 @@ Usage of ./bin/pcalendar:
 
 **Example:**
 
-To solve the puzzle for the first day of the first month of the first year and see the first solution:
+To solve the puzzle for the first day of the first month of the first year (Gregorian) and see the first solution:
 
 ```bash
 ./bin/pcalendar -weekday 1 -day 1 -month 1 -year 1 -count 1
 ```
 
-## Output Example
+To solve for today's date using the Jalali calendar and output the first 5 solutions as SVGs to the `jalali` directory:
 
-The solver will print the solutions to the console.
+```bash
+./bin/pcalendar -today -jalali -count 5 -svg -output-dir jalali
+```
+
+## Features
+
+- **Text & Color Output**: Supports both plain text and colored ANSI output for terminal viewing.
+- **SVG Export**: Can export solutions as SVG images (via `pcalendar -svg`).
+- **Support for Calendars**: Supports both Gregorian and Jalali (Persian) calendars.
+- **Daily Puzzle**: Use GitHub Actions to generate and send daily puzzles via Telegram.
+
+## Daily Puzzle (GitHub Action)
+
+This repository includes a GitHub Action (`.github/workflows/daily_puzzle.yml`) that runs daily at 6:00 AM. It:
+
+1.  Generates 5 solutions for the current day's puzzle for both Gregorian and Jalali calendars.
+2.  Converts the SVG output to PNG.
+3.  Sends the images to a Telegram chat.
+
+**Required Secrets:**
+
+- `TELEGRAM_TO`: The Telegram chat ID to send messages to.
+- `TELEGRAM_TOKEN`: The user bot token.
+
+## Output Example
 
 ### `pentomino` example
 
@@ -99,6 +135,7 @@ UUFWWZZTXP
 UFFNNTTTPP
 UUFFNNNTPP
 ```
+*(Colors are rendered in the terminal)*
 
 ### `pcalendar` example
 
@@ -114,3 +151,4 @@ LLFZZOVUXU
 PPPZVVVUUU
 PPZZOOOOOO
 ```
+*(Colors are rendered in the terminal)*
