@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/charmbracelet/lipgloss"
 	psolver "github.com/fzerorubigd/pentomino-solver"
 )
 
@@ -31,10 +32,45 @@ func main() {
 		}
 		mm[r.Hash()] = struct{}{}
 		fmt.Println(i, "===>")
-		fmt.Println(r)
+		printColoredMatrix(r)
 		if count > 0 && i == count {
 			os.Exit(0)
 		}
 		i += 1
 	}
 }
+
+
+func printColoredMatrix(m *psolver.Matrix) {
+	for j := 0; j < m.Height; j++ {
+		for i := 0; i < m.Width; i++ {
+			char := m.At(i, j) 
+			
+			style, ok := colorMap[char]
+			if !ok {
+				style = lipgloss.NewStyle() // Default white
+			}
+			
+			fmt.Print(style.Render("██"))
+		}
+		fmt.Println()
+	}
+}
+
+var colorMap = map[byte]lipgloss.Style{
+	'I': lipgloss.NewStyle().Foreground(lipgloss.Color("#e6194B")), // Rose Red
+	'L': lipgloss.NewStyle().Foreground(lipgloss.Color("#3cb44b")), // Green
+	'P': lipgloss.NewStyle().Foreground(lipgloss.Color("#ffe119")), // Yellow
+	'T': lipgloss.NewStyle().Foreground(lipgloss.Color("#4363d8")), // Blue
+	'U': lipgloss.NewStyle().Foreground(lipgloss.Color("#f58231")), // Orange
+	'V': lipgloss.NewStyle().Foreground(lipgloss.Color("#911eb4")), // Purple
+	'W': lipgloss.NewStyle().Foreground(lipgloss.Color("#42d4f4")), // Cyan
+	'X': lipgloss.NewStyle().Foreground(lipgloss.Color("#f032e6")), // Magenta
+	'Y': lipgloss.NewStyle().Foreground(lipgloss.Color("#bfef45")), // Lime
+	'Z': lipgloss.NewStyle().Foreground(lipgloss.Color("#fabed4")), // Pink
+	'F': lipgloss.NewStyle().Foreground(lipgloss.Color("#469990")), // Teal
+	'N': lipgloss.NewStyle().Foreground(lipgloss.Color("#dcbeff")), // Lavender
+	'O': lipgloss.NewStyle().Foreground(lipgloss.Color("#444444")), // Dark Gray for Date cells
+	'.': lipgloss.NewStyle().Foreground(lipgloss.Color("#222222")), // Near black for empty
+}
+
