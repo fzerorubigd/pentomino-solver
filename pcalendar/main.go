@@ -22,7 +22,7 @@ func getToday(j bool) (int, int, int, int) {
 		}
 		return wd, jDate.Day(), int(jDate.Month()), jDate.Year() - 1403
 	}
-	return int(date.Weekday()), date.Day(), int(date.Month()), date.Year() - 2024
+	return int(date.Weekday()) + 1, date.Day(), int(date.Month()), date.Year() - 2024
 
 }
 
