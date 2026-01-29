@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	now := time.Now()
+	now := time.Now().AddDate(0, 0, 1)
 
 	// Gregorian
 	fmt.Printf("today=%s\n", now.Format("2006-01-02"))
