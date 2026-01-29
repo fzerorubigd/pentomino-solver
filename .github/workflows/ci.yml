@@ -33,10 +33,10 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y librsvg2-bin
 
       - name: Generate Solutions
-        run: ./main -today -svg -count 5 -output-dir gregorian
+        run: ./main -tomorrow -svg -count 5 -output-dir gregorian
 
       - name: Generate Solutions
-        run: ./main -today -svg -jalali -count 5 -output-dir jalali
+        run: ./main -tomorrow -svg -jalali -count 5 -output-dir jalali
 
       - name: Convert to PNG
         run: |

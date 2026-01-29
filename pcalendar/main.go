@@ -11,8 +11,8 @@ import (
 	"github.com/mshafiee/jalali"
 )
 
-func getToday(j bool) (int, int, int, int) {
-	date := time.Now()
+func getTomorrow(j bool) (int, int, int, int) {
+	date := time.Now().AddDate(0, 0, 1)
 	if j {
 		jDate := jalali.ToJalali(date)
 
@@ -28,7 +28,7 @@ func getToday(j bool) (int, int, int, int) {
 
 func main() {
 	var W, D, M, Y, count int
-	var color, svg, today, jalaliDate bool
+	var color, svg, tomorrow, jalaliDate bool
 	var outputDir string
 	flag.IntVar(&W, "weekday", 1, "The weekday, 1 for the first day, 7 for 7th day. (Shanbe is first for Persian, Monday for Gregorian)")
 	flag.IntVar(&D, "day", 1, "The day of the month, 1 to 31")
@@ -38,7 +38,8 @@ func main() {
 	flag.BoolVar(&color, "color", true, "Use color output")
 	flag.BoolVar(&svg, "svg", false, "Output SVG files (1.svg, 2.svg, ...)")
 	flag.StringVar(&outputDir, "output-dir", "", "Output directory for SVG files")
-	flag.BoolVar(&today, "today", false, "Output today's calendar, ignore all other date related flags")
+	flag.BoolVar(&tomorrow, "tomorrow", false, "Output tomorrow's calendar, ignore all other date related flags")
+
 	flag.BoolVar(&jalaliDate, "jalali", false, "Use jalali calendar")
 	flag.Parse()
 
@@ -51,8 +52,8 @@ func main() {
 		exporter = &psolver.StringExporter{}
 	}
 
-	if today {
-		W, D, M, Y = getToday(jalaliDate)
+	if tomorrow {
+		W, D, M, Y = getTomorrow(jalaliDate)
 	}
 
 	cal := psolver.NewPersianCalendar()
