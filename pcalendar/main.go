@@ -28,7 +28,7 @@ func getTomorrow(j bool) (int, int, int, int) {
 
 func main() {
 	var W, D, M, Y, count int
-	var color, svg, tomorrow, jalaliDate bool
+	var color, svg, png, tomorrow, jalaliDate bool
 	var outputDir string
 	flag.IntVar(&W, "weekday", 1, "The weekday, 1 for the first day, 7 for 7th day. (Shanbe is first for Persian, Monday for Gregorian)")
 	flag.IntVar(&D, "day", 1, "The day of the month, 1 to 31")
@@ -37,15 +37,21 @@ func main() {
 	flag.IntVar(&count, "count", -1, "The count of the solution to show before exit, -1 to show all")
 	flag.BoolVar(&color, "color", true, "Use color output")
 	flag.BoolVar(&svg, "svg", false, "Output SVG files (1.svg, 2.svg, ...)")
-	flag.StringVar(&outputDir, "output-dir", "", "Output directory for SVG files")
+	flag.BoolVar(&png, "png", false, "Output PNG files (1.png, 2.png, ...)")
+	flag.StringVar(&outputDir, "output-dir", "", "Output directory for SVG/PNG files")
 	flag.BoolVar(&tomorrow, "tomorrow", false, "Output tomorrow's calendar, ignore all other date related flags")
 
 	flag.BoolVar(&jalaliDate, "jalali", false, "Use jalali calendar")
 	flag.Parse()
 
 	var exporter psolver.Exporter
+	var ext string
 	if svg {
 		exporter = psolver.NewSVGExporter()
+		ext = ".svg"
+	} else if png {
+		exporter = psolver.NewPNGExporter()
+		ext = ".png"
 	} else if color {
 		exporter = psolver.NewColorStringExporter()
 	} else {
@@ -70,8 +76,8 @@ func main() {
 		}
 		mm[r.Hash()] = struct{}{}
 
-		if svg {
-			fileName := filepath.Join(outputDir, fmt.Sprintf("%d.svg", i))
+		if svg || png {
+			fileName := filepath.Join(outputDir, fmt.Sprintf("%d%s", i, ext))
 			f, err := os.Create(fileName)
 			if err != nil {
 				fmt.Printf("Error creating file %s: %v\n", fileName, err)
