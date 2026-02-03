@@ -12,6 +12,7 @@ type Matrix struct {
 
 	data   []byte
 	pieces map[byte]int
+	Footer string
 }
 
 type Point struct {
@@ -48,6 +49,9 @@ func (m *Matrix) String() string {
 		res += "\n"
 	}
 
+	if m.Footer != "" {
+		res += m.Footer + "\n"
+	}
 	return res
 }
 
