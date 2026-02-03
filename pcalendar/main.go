@@ -76,6 +76,12 @@ func main() {
 		}
 		mm[r.Hash()] = struct{}{}
 
+		if jalaliDate {
+			r.Footer = fmt.Sprintf("%d-%02d-%02d", Y+1403, M, D)
+		} else {
+			r.Footer = fmt.Sprintf("%d-%02d-%02d", Y+2024, M, D)
+		}
+
 		if svg || png {
 			fileName := filepath.Join(outputDir, fmt.Sprintf("%d%s", i, ext))
 			f, err := os.Create(fileName)

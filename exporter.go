@@ -9,6 +9,9 @@ import (
 	"io"
 
 	"github.com/fatih/color"
+	"golang.org/x/image/font"
+	"golang.org/x/image/font/basicfont"
+	"golang.org/x/image/math/fixed"
 )
 
 // Exporter is the interface for exporting a matrix to an io.Writer
@@ -110,6 +113,9 @@ func NewSVGExporter() *SVGExporter {
 func (s *SVGExporter) Export(m *Matrix, w io.Writer) error {
 	width := m.Width * s.CellSize
 	height := m.Height * s.CellSize
+	if m.Footer != "" {
+		height += 20 // Add space for footer
+	}
 
 	if _, err := fmt.Fprintf(w, "<svg width=\"%d\" height=\"%d\" xmlns=\"http://www.w3.org/2000/svg\">\n", width, height); err != nil {
 		return err
@@ -132,6 +138,12 @@ func (s *SVGExporter) Export(m *Matrix, w io.Writer) error {
 					return err
 				}
 			}
+		}
+	}
+
+	if m.Footer != "" {
+		if _, err := fmt.Fprintf(w, "<text x=\"%d\" y=\"%d\" font-family=\"monospace\" font-size=\"15\" fill=\"black\">%s</text>\n", 10, height-5, m.Footer); err != nil {
+			return err
 		}
 	}
 
@@ -172,6 +184,11 @@ func NewPNGExporter() *PNGExporter {
 func (p *PNGExporter) Export(m *Matrix, w io.Writer) error {
 	width := m.Width * p.CellSize
 	height := m.Height * p.CellSize
+	footerHeight := 0
+	if m.Footer != "" {
+		footerHeight = 20
+		height += footerHeight
+	}
 
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 
@@ -200,6 +217,16 @@ func (p *PNGExporter) Export(m *Matrix, w io.Writer) error {
 				}
 			}
 		}
+	}
+
+	if m.Footer != "" {
+		d := &font.Drawer{
+			Dst:  img,
+			Src:  image.Black,
+			Face: basicfont.Face7x13,
+			Dot:  fixed.Point26_6{X: fixed.I(10), Y: fixed.I(height - 5)},
+		}
+		d.DrawString(m.Footer)
 	}
 
 	return png.Encode(w, img)
