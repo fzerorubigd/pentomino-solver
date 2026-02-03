@@ -2,6 +2,10 @@ package psolver
 
 import (
 	"fmt"
+	"image"
+	icolor "image/color"
+	"image/draw"
+	"image/png"
 	"io"
 
 	"github.com/fatih/color"
@@ -135,4 +139,68 @@ func (s *SVGExporter) Export(m *Matrix, w io.Writer) error {
 		return err
 	}
 	return nil
+}
+
+// PNGExporter exports the matrix as a PNG image
+type PNGExporter struct {
+	CellSize int
+	colorMap map[byte]icolor.Color
+}
+
+// NewPNGExporter creates a new PNGExporter with default settings
+func NewPNGExporter() *PNGExporter {
+	return &PNGExporter{
+		CellSize: 20,
+		colorMap: map[byte]icolor.Color{
+			'F': icolor.RGBA{0xE6, 0x19, 0x4B, 0xFF}, // Red
+			'I': icolor.RGBA{0x3C, 0xB4, 0x4B, 0xFF}, // Green
+			'L': icolor.RGBA{0xFF, 0xE1, 0x19, 0xFF}, // Yellow
+			'N': icolor.RGBA{0x00, 0x82, 0xC8, 0xFF}, // Blue
+			'P': icolor.RGBA{0xF5, 0x82, 0x30, 0xFF}, // Orange
+			'T': icolor.RGBA{0x91, 0x1E, 0xB4, 0xFF}, // Purple
+			'U': icolor.RGBA{0x46, 0xF0, 0xF0, 0xFF}, // Cyan
+			'V': icolor.RGBA{0xF0, 0x32, 0xE6, 0xFF}, // Magenta
+			'W': icolor.RGBA{0xD2, 0xF5, 0x3C, 0xFF}, // Lime
+			'X': icolor.RGBA{0xFA, 0xBE, 0xD4, 0xFF}, // Pink
+			'Y': icolor.RGBA{0x00, 0x80, 0x80, 0xFF}, // Teal
+			'Z': icolor.RGBA{0xDC, 0xBE, 0xFF, 0xFF}, // Lavender
+		},
+	}
+}
+
+// Export writes the matrix as a PNG to the writer
+func (p *PNGExporter) Export(m *Matrix, w io.Writer) error {
+	width := m.Width * p.CellSize
+	height := m.Height * p.CellSize
+
+	img := image.NewRGBA(image.Rect(0, 0, width, height))
+
+	// Draw pieces
+	for j := 0; j < m.Height; j++ {
+		for i := 0; i < m.Width; i++ {
+			val := m.data[j*m.Width+i]
+			if val != 0 {
+				c, ok := p.colorMap[val]
+				if !ok {
+					c = icolor.Black // Fallback
+				}
+				x := i * p.CellSize
+				y := j * p.CellSize
+				rect := image.Rect(x, y, x+p.CellSize, y+p.CellSize)
+				draw.Draw(img, rect, &image.Uniform{c}, image.Point{}, draw.Src)
+
+				// Simple border
+				borderColor := icolor.Black
+				// Top
+				for k := 0; k < p.CellSize; k++ {
+					img.Set(x+k, y, borderColor)
+					img.Set(x+k, y+p.CellSize-1, borderColor)
+					img.Set(x, y+k, borderColor)
+					img.Set(x+p.CellSize-1, y+k, borderColor)
+				}
+			}
+		}
+	}
+
+	return png.Encode(w, img)
 }

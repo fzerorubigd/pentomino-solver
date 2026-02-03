@@ -29,26 +29,13 @@ jobs:
       - name: Create output directory gregorian
         run: mkdir gregorian
 
-      - name: Install dependencies
-        run: sudo apt-get update && sudo apt-get install -y librsvg2-bin
 
       - name: Generate Solutions
-        run: ./main -tomorrow -svg -count 5 -output-dir gregorian
+        run: ./main -tomorrow -png -count 5 -output-dir gregorian
 
       - name: Generate Solutions
-        run: ./main -tomorrow -svg -jalali -count 5 -output-dir jalali
+        run: ./main -tomorrow -png -jalali -count 5 -output-dir jalali
 
-      - name: Convert to PNG
-        run: |
-          for file in gregorian/*.svg; do
-            rsvg-convert "$file" -o "${file%.svg}.png"
-          done
-
-      - name: Convert to PNG
-        run: |
-          for file in jalali/*.svg; do
-            rsvg-convert "$file" -o "${file%.svg}.png"
-          done
 
       - name: Get Date
         id: date

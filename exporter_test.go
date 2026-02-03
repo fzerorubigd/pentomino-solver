@@ -117,3 +117,23 @@ func TestSVGExporter(t *testing.T) {
 		t.Error("SVG should contain color for I (#3CB44B)")
 	}
 }
+
+func TestPNGExporter(t *testing.T) {
+	m := NewMatrix(3, 3)
+	m.data[0] = 'F'
+	m.data[1] = 'I'
+	m.data[4] = 'L' // center
+
+	exporter := NewPNGExporter()
+	var buf bytes.Buffer
+	if err := exporter.Export(m, &buf); err != nil {
+		t.Fatalf("Export failed: %v", err)
+	}
+
+	// Check magic bytes for PNG
+	// PNG signature is 89 50 4E 47 0D 0A 1A 0A
+	expectedSig := []byte{0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A}
+	if !bytes.HasPrefix(buf.Bytes(), expectedSig) {
+		t.Error("Output should be a PNG file")
+	}
+}
