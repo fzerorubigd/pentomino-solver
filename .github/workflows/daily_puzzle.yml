@@ -2,12 +2,37 @@ name: Daily Puzzle
 
 on:
   schedule:
-    - cron: '0 19 * * *'
+    # 14:23 UTC is late afternoon in Berlin, chosen over the previous 19:00 UTC
+    # so a queued run still has most of the day to start. GitHub cron has no
+    # timezone, so this is 16:23 local in summer and 15:23 in winter.
+    #
+    # The minute is deliberately not :00. GitHub queues scheduled workflows and
+    # runs them when capacity allows, and the top of the hour is the busiest
+    # slot on the platform, so an on-the-hour job absorbs the worst of the delay.
+    - cron: '23 14 * * *'
   workflow_dispatch:
+    inputs:
+      days:
+        description: "Which day to solve: 1 for tomorrow (the daily default), 0 for today"
+        required: false
+        default: '1'
+        type: choice
+        options:
+          - '1'
+          - '0'
+
+# A scheduled run and a hand-triggered one must not race over the same output.
+concurrency:
+  group: daily-puzzle
+  cancel-in-progress: false
 
 jobs:
   solve-and-send:
     runs-on: ubuntu-latest
+    env:
+      # Scheduled runs carry no inputs, so the fallback is what makes the daily
+      # job keep solving tomorrow.
+      DAYS: ${{ github.event.inputs.days || '1' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -29,16 +54,16 @@ jobs:
         run: mkdir gregorian
 
 
-      - name: Generate Solutions
-        run: ./main -tomorrow -png -count 5 -output-dir gregorian
+      - name: Generate Solutions (Gregorian)
+        run: ./main -relative -days "$DAYS" -png -count 5 -output-dir gregorian
 
-      - name: Generate Solutions
-        run: ./main -tomorrow -png -jalali -count 5 -output-dir jalali
+      - name: Generate Solutions (Jalali)
+        run: ./main -relative -days "$DAYS" -png -jalali -count 5 -output-dir jalali
 
 
       - name: Get Date
         id: date
-        run: ./date-tool >> $GITHUB_OUTPUT
+        run: ./date-tool -days "$DAYS" >> $GITHUB_OUTPUT
 
       - name: Send Gregorian to Telegram
         uses: appleboy/telegram-action@master

@@ -11,8 +11,11 @@ import (
 	"github.com/mshafiee/jalali"
 )
 
-func getTomorrow(j bool) (int, int, int, int) {
-	date := time.Now().AddDate(0, 0, 1)
+// dateIn returns the calendar coordinates for the day `offset` days from now.
+// offset 1 is tomorrow, which is what the daily job wants; offset 0 is today,
+// used when a run is triggered by hand to reproduce the day already in play.
+func dateIn(offset int, j bool) (int, int, int, int) {
+	date := time.Now().AddDate(0, 0, offset)
 	if j {
 		jDate := jalali.ToJalali(date)
 
@@ -28,7 +31,8 @@ func getTomorrow(j bool) (int, int, int, int) {
 
 func main() {
 	var W, D, M, Y, count int
-	var color, svg, png, tomorrow, jalaliDate bool
+	var offset int
+	var color, svg, png, tomorrow, relative, jalaliDate bool
 	var outputDir string
 	flag.IntVar(&W, "weekday", 1, "The weekday, 1 for the first day, 7 for 7th day. (Shanbe is first for Persian, Monday for Gregorian)")
 	flag.IntVar(&D, "day", 1, "The day of the month, 1 to 31")
@@ -39,7 +43,9 @@ func main() {
 	flag.BoolVar(&svg, "svg", false, "Output SVG files (1.svg, 2.svg, ...)")
 	flag.BoolVar(&png, "png", false, "Output PNG files (1.png, 2.png, ...)")
 	flag.StringVar(&outputDir, "output-dir", "", "Output directory for SVG/PNG files")
-	flag.BoolVar(&tomorrow, "tomorrow", false, "Output tomorrow's calendar, ignore all other date related flags")
+	flag.BoolVar(&tomorrow, "tomorrow", false, "Output tomorrow's calendar, ignore all other date related flags. Shorthand for -days 1")
+	flag.IntVar(&offset, "days", 0, "Days from today to solve, used with -relative. 0 is today, 1 is tomorrow")
+	flag.BoolVar(&relative, "relative", false, "Solve a day relative to today (see -days), ignore all other date related flags")
 
 	flag.BoolVar(&jalaliDate, "jalali", false, "Use jalali calendar")
 	flag.Parse()
@@ -58,8 +64,13 @@ func main() {
 		exporter = &psolver.StringExporter{}
 	}
 
+	// -tomorrow stays as it was, so existing invocations keep working; it is now
+	// just the offset-1 case of -relative.
 	if tomorrow {
-		W, D, M, Y = getTomorrow(jalaliDate)
+		relative, offset = true, 1
+	}
+	if relative {
+		W, D, M, Y = dateIn(offset, jalaliDate)
 	}
 
 	cal := psolver.NewPersianCalendar()
